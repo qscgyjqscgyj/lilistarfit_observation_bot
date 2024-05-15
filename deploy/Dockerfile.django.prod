@@ -25,7 +25,5 @@ RUN mkdir -p /var/log/gunicorn/
 RUN touch /var/log/gunicorn/access.log
 RUN touch /var/log/gunicorn/error.log
 
-EXPOSE 8000
-
 # Run server
-CMD ./deploy/prepare_env.sh && gunicorn lilistarfit_observation_bot.wsgi:application -w 2 -b localhost:8000
+CMD ./deploy/prepare_env.sh && gunicorn lilistarfit_observation_bot.wsgi:application -w 2 -b :8000
