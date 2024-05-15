@@ -25,7 +25,8 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'DEV')
 SECRET_KEY = 'django-insecure-sb&&s!6n342p329%$+vtjx_t7v=7%83badqxt)b8v9l*f1$z+c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ENVIRONMENT != 'PROD'
+# DEBUG = ENVIRONMENT != 'PROD'
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'lilystarfit.com',
@@ -35,6 +36,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '0.0.0.0',
 ]
+# if ENVIRONMENT != 'PROD':
+#     ALLOWED_HOSTS.append('localhost')
 
 # Application definition
 
