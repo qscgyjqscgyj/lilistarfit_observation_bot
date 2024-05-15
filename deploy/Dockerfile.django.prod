@@ -28,4 +28,4 @@ RUN touch /var/log/gunicorn/error.log
 EXPOSE 8000
 
 # Run server
-CMD ./deploy/prepare_env.sh && gunicorn lilistarfit_observation_bot.wsgi:application -w 2 -b :8000 --access-logfile /var/log/gunicorn/access.log --error-logfile /var/log/gunicorn/error.log
+CMD ./deploy/prepare_env.sh && gunicorn lilistarfit_observation_bot.wsgi:application -w 2 -b :8000
