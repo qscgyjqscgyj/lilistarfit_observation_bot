@@ -30,10 +30,10 @@ jobs:
         run: docker context use production
 
       - name: Build docker images
-        run: docker compose -f docker-compose.prod.yaml build --no-cache
+        run: docker-compose -f docker-compose.prod.yaml build --no-cache
 
       - name: Run docker containers
-        run: docker compose -f docker-compose.prod.yaml up -d
+        run: docker-compose -f docker-compose.prod.yaml up -d
 
       - name: Use docker context default
         run: docker context use default
