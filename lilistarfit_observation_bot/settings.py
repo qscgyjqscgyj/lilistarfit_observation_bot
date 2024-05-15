@@ -30,6 +30,7 @@ DEBUG = ENVIRONMENT != 'PROD'
 ALLOWED_HOSTS = [
     'bot.lilystarfit.com',
     'localhost',
+    '127.0.0.1',
     '0.0.0.0',
 ]
 # if ENVIRONMENT != 'PROD':
