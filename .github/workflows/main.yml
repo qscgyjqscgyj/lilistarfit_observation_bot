@@ -1,0 +1,39 @@
+name: Build & Deploy to server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Set up docker context over SSH authentication
+        uses: amirmarmul/docker-context-ssh-action@v1
+        with:
+            ssh-host: ${{ secrets.SSH_HOST }}
+            ssh-port: ${{ secrets.SSH_PORT }}
+            ssh-username: ${{ secrets.SSH_USERNAME }}
+            ssh-private-key: ${{ secrets.SSH_KEY }}
+            context-name: production
+
+      - name: Use docker context production
+        run: docker context use production
+
+      - name: Build docker images
+        run: docker compose -f docker-compose.prod.yaml build --no-cache
+
+      - name: Run docker containers
+        run: docker compose -f docker-compose.prod.yaml up -d
+
+      - name: Use docker context default
+        run: docker context use default
+
+      - name: Remove docker context production
+        run: docker context rm production
