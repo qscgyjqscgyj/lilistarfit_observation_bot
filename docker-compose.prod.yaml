@@ -16,8 +16,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - host
+    network_mode: host
+
 
   db:
     image: postgres:latest
@@ -34,11 +34,8 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+    network_mode: host
+
 
 volumes:
   postgres-data:
-
-networks:
-  host:
-    name: host
-    external: true
