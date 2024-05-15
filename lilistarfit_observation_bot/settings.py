@@ -28,10 +28,12 @@ SECRET_KEY = 'django-insecure-sb&&s!6n342p329%$+vtjx_t7v=7%83badqxt)b8v9l*f1$z+c
 DEBUG = ENVIRONMENT != 'PROD'
 
 ALLOWED_HOSTS = [
-    'bot.lilystarfit.com'
+    'bot.lilystarfit.com',
+    'localhost',
+    '0.0.0.0',
 ]
-if ENVIRONMENT != 'PROD':
-    ALLOWED_HOSTS.append('localhost')
+# if ENVIRONMENT != 'PROD':
+#     ALLOWED_HOSTS.append('localhost')
 
 # Application definition
 
