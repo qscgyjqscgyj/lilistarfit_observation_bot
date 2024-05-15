@@ -23,6 +23,9 @@ jobs:
             ssh-private-key: ${{ secrets.SSH_KEY }}
             context-name: production
 
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Use docker context production
         run: docker context use production
 
