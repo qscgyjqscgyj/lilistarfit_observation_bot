@@ -5,12 +5,13 @@ services:
     build:
       context: .
       dockerfile: deploy/Dockerfile.django.dev
+      network: host
     env_file:
       - .env
     environment:
       ENVIRONMENT: DEV
     ports:
-      - 0.0.0.0:8080:8080
+      - 0.0.0.0:8000:8000
     volumes:
       - .:/app
     depends_on:
@@ -34,6 +35,17 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+
+  bot:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.bot
+      network: host
+    volumes:
+      - ./bots:/app
+    env_file:
+      - .env
+    restart: always
 
 volumes:
   postgres-data:
