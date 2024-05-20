@@ -35,5 +35,16 @@ services:
       timeout: 3s
       retries: 3
 
+  bot:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.bot
+      network: host
+    volumes:
+      - ./bots:/app
+    env_file:
+      - .env
+    restart: always
+
 volumes:
   postgres-data:
