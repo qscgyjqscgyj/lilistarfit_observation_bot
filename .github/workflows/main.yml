@@ -27,7 +27,7 @@ jobs:
         run: docker context use production
 
       - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE }}" > .env
+        run: echo "${{ vars.ENV_FILE }}" > .env
 
       - name: Echo .env
         run: cat .env
