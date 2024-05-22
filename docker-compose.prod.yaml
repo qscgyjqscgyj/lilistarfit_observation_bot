@@ -35,7 +35,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} && PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USER} -d ${DB_DATABASE} -c 'SELECT 1'"]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   bot:
     build:
