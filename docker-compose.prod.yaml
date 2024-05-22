@@ -43,7 +43,7 @@ services:
       dockerfile: deploy/Dockerfile.bot
       network: host
     volumes:
-      - ./bots:/app
+      - ./bot:/app/bot
     env_file:
       - .env
     restart: always
