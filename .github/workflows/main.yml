@@ -14,9 +14,6 @@ jobs:
         with:
           ref: main
 
-      - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE }}" > .env
-
       - name: Set up docker context over SSH authentication
         uses: amirmarmul/docker-context-ssh-action@v1
         with:
@@ -28,6 +25,9 @@ jobs:
 
       - name: Use docker context production
         run: docker context use production
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Build docker images
         run: docker compose -f docker-compose.prod.yaml build --no-cache
