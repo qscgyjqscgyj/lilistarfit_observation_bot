@@ -1,13 +1,15 @@
 import json
 import os
 import aiohttp
-from telegram import Update, InputMediaPhoto
+import traceback
+from telegram import Update, InputMediaPhoto, error
 
-from bot.ai.normalizers import normalize_gpt_4o_result
-from bot.ai.request import send_to_chatgpt_vision
-from bot.menu import render_main_menu
-from bot.file.pdf import pdf_to_images
-from bot.logger import logger
+from ai.normalizers import normalize_gpt_4o_result, normalize_message_result, strip_html_tags
+from ai.request import send_to_chatgpt_vision
+from ai.messages import GREETING_MESSAGE
+from menu import render_main_menu
+from file.pdf import pdf_to_images
+from logger import logger
 
 FILE_FORMAT_ERROR = "🔴 Загруженный файл не является PDF документом или изображением. Загрузите пожалуйста допустимый файл."
 UPLOADED_PDF = "✅ Вы загрузили PDF файл."
@@ -49,6 +51,8 @@ async def handle_file(update: Update, context):
                 try:
                     await download_file(file.file_path, local_file_path)
                     images = pdf_to_images(local_file_path)
+
+                    logger.info(f"PDF file was successfully converted to images: {images}")
                     
                     media = []
                     image_paths = []
@@ -58,32 +62,31 @@ async def handle_file(update: Update, context):
                         image_paths.append(temp_image_path)
                         media.append(InputMediaPhoto(open(temp_image_path, 'rb')))
 
+                    await update.message.reply_media_group(media=media)
+
+                    await update.message.reply_text(GREETING_MESSAGE, parse_mode='HTML', disable_web_page_preview=True)
+
                     ai_response = await send_to_chatgpt_vision(image_paths)
                     ai_content = json.loads(ai_response['choices'][0]['message']['content'])
 
                     for idx, result in enumerate(ai_content['results']):
                         normalized_result = normalize_gpt_4o_result(result)
-                        result_color = "🟢" if normalized_result['conclusion_code'] == '+' else "🔴"
+                        message = normalize_message_result(normalized_result)
+                        try:
+                            await update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
+                        except error.BadRequest:
+                            stript_message = strip_html_tags(message)
+                            await update.message.reply_text(stript_message, disable_web_page_preview=True)
 
-                        message = (
-                            f"{result_color} Результат {idx + 1}: {normalized_result['name']}\n"
-                            f"Значение: {normalized_result['value']}\n"
-                            f"Нормы для мужчин: {normalized_result['normsMan']}\n"
-                            f"Нормы для женщин: {normalized_result['normsWoman']}\n"
-                            f"Описание: {normalized_result['description']}\n"
-                            f"Причины: {normalized_result['reasons']}\n"
-                            f"Заключение: {normalized_result['conclusion']}\n"
-                        )
-                        await update.message.reply_text(message)
-
-                    # await update.message.reply_media_group(media=media)
+                    ps_text = f"Необходама консультация врача: <a href='https://lilystarfit.com'>получить консультацию</a>\n"
+                    await update.message.reply_text(ps_text, parse_mode='HTML', disable_web_page_preview=True)
 
                     context.user_data['expecting_file'] = False
                     os.remove(local_file_path)
                     for idx in range(len(images)):
                         os.remove(f"/tmp/temp_image_{idx}.png")
                 except Exception as e:
-                    logger.error(f"Failed to process PDF file: {e}")
+                    logger.error(f"Failed to process PDF file: {e}\n{traceback.format_exc()}")
                     await update.message.reply_text("❌ Произошла ошибка при обработке файла. Попробуйте еще раз.")
                     await render_main_menu(update, context)
 

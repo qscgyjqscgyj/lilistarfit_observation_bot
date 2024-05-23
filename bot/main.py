@@ -3,8 +3,8 @@ import os
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackQueryHandler, MessageHandler, ApplicationBuilder, filters
 
-from bot.menu import render_main_menu, SEND_OBSERVATION_KEY
-from bot.file.handle_file import handle_file
+from menu import render_main_menu, SEND_OBSERVATION_KEY
+from file.handle_file import handle_file
 
 TOKEN = os.getenv('TG_BOT_TOKEN', None)
 

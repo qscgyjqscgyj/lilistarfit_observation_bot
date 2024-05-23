@@ -3,7 +3,7 @@ import os
 import requests
 import json
 
-from bot.ai.promt import PROMT
+from ai.promt import PROMT
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
