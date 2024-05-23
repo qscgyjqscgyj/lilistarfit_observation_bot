@@ -21,6 +21,8 @@ services:
 
   db:
     image: postgres:latest
+    build:
+      network: host
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
