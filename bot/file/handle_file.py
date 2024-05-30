@@ -14,16 +14,16 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 async def handle_file(update: Update, context):
     if context.user_data.get("expecting_file"):
-        file = (
-            await update.message.document.get_file()
-            or await update.message.photo[-1].get_file()
-        )
+        file = None
+
+        if update.message.document:
+            file = await update.message.document.get_file()
+            logger.info(f"Received file: {file.file_path}")
 
         images = []
         if update.message.photo:
             images = [await photo.get_file() for photo in update.message.photo]
-
-        logger.info(f"Received file: {file.file_path}")
+            logger.info(f"Received images: {images}")
 
         if not update.message.document and not update.message.photo:
             await update.message.reply_text(FILE_FORMAT_ERROR)

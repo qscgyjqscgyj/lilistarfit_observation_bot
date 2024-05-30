@@ -57,9 +57,6 @@ def get_observation_values(image_paths):
     response = requests.post(YANDEX_AI_URL, headers=YANDEX_AI_HEADERS, json=paload)
     if response.status_code == 200:
         json_data_response = response.json()
-        logger.info(
-            f"get_observation_values.json_data_response!!!!!!!!!!!!!!!!: {json.dumps(json_data_response)}"
-        )
         try:
             return json.loads(json_data_response["choices"][0]["message"]["content"])
         except json.decoder.JSONDecodeError as e:

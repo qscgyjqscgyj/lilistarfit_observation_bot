@@ -1,7 +1,8 @@
 import json
 import os
+from PIL import Image
 import traceback
-from telegram import InputMediaPhoto, Update, error as tg_error
+from telegram import File, InputMediaPhoto, Update, error as tg_error
 from ai.messages import GREETING_MESSAGE
 from ai.openai import get_observation_results, get_observation_values
 from ai.normalizers import (
@@ -9,6 +10,7 @@ from ai.normalizers import (
     normalize_message_result,
     strip_html_tags,
 )
+from file.utils import download_file
 from logger import logger
 
 
@@ -16,11 +18,21 @@ async def handle_image_files(update: Update, context, images):
     try:
         media = []
         image_paths = []
-        for image_index, image in enumerate(images):
-            temp_image_path = f"/tmp/temp_image_{image_index}.png"
-            image.save(temp_image_path, format="PNG")
-            image_paths.append(temp_image_path)
-            media.append(InputMediaPhoto(open(temp_image_path, "rb")))
+        for image in images:
+            local_image_path = None
+
+            if type(image) == Image:
+                local_image_path = image.file_path
+
+            if type(image) == File:
+                local_image_path = os.path.join(
+                    "/tmp", os.path.basename(image.file_path)
+                )
+                await download_file(image.file_path, local_image_path)
+
+            if local_image_path:
+                image_paths.append(local_image_path)
+                media.append(InputMediaPhoto(open(local_image_path, "rb")))
 
         await update.message.reply_text(
             GREETING_MESSAGE, parse_mode="HTML", disable_web_page_preview=True
@@ -28,7 +40,7 @@ async def handle_image_files(update: Update, context, images):
 
         ai_response_data = get_observation_values(image_paths)
 
-        for idx, result in enumerate(ai_response_data["results"]):
+        for result in ai_response_data["results"]:
             normalized_result = normalize_observation_interpretation_result(result)
             message = normalize_message_result(normalized_result)
             try:
@@ -47,8 +59,9 @@ async def handle_image_files(update: Update, context, images):
         )
 
         context.user_data["expecting_file"] = False
-        for idx in range(len(images)):
-            os.remove(f"/tmp/temp_image_{idx}.png")
+
+        for image_path in image_paths:
+            os.remove(image_path)
     except Exception as e:
         logger.error(f"Failed to process Image file: {e}\n{traceback.format_exc()}")
         await update.message.reply_text(

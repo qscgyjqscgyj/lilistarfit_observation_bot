@@ -30,7 +30,7 @@ OBSEVATION_GET_VAUES_PROMT = {
 
 OBSERVATION_INTERPRETATION_PROMT = {
     # "request": "Analyse all observations results and return addition information about each one based on 'response_format' in JSON.",
-    "request": "Проанализируй все результаты анализов из документов, которые были отправлены порциями в сообщениях выше и согласно последним научным данным верни дополнительную информацию и заключение о каждом из анализов на основе 'response_format' в JSON. Верни только результаты с 'conclusion_code == -'",
+    "request": "Проанализируй все результаты анализов из документов, которые были отправлены порциями в сообщениях выше и согласно последним научным данным верни дополнительную информацию и заключение о каждом из анализов на основе 'response_format' в JSON. Обработай только результаты с отклонениями от нормы!",
     "response_format": {
         "_type": "object",
         "_properties": {

@@ -28,7 +28,7 @@ def get_observation_values(image_paths):
         image_text = pytesseract.image_to_string(image, lang="rus")
         images_content += image_text
 
-    chunked_images_content = chunk_text_by_linebreaks(images_content)
+    # chunked_images_content = chunk_text_by_linebreaks(images_content)
 
     paload = {
         "model": "gpt-4o",
@@ -36,13 +36,17 @@ def get_observation_values(image_paths):
         "messages": [
             {
                 "role": "system",
-                "content": "You are an assistant specialized in getting observations tests values from medical documents data in Russian language and return the results in JSON format. Don't get categories, only tests values of medical obsevations.",
+                "content": "You are an assistant specialized in getting observations tests values from medical documents data in Russian language and return the results in JSON format. Don't get categories, only tests values of medical obsevations and return results with negative 'conclusion_code' only.",
                 # "content": "You are an assistant specialized in getting only medical observations data values from medical documents in Russian language.",
             },
-            *[
-                {"role": "user", "content": images_content}
-                for images_content in chunked_images_content
-            ],
+            # *[
+            #     {"role": "user", "content": images_content}
+            #     for images_content in chunked_images_content
+            # ],
+            {
+                "role": "user",
+                "content": images_content,
+            },
             {
                 "role": "user",
                 "content": json.dumps(OBSERVATION_INTERPRETATION_PROMT),
@@ -53,9 +57,6 @@ def get_observation_values(image_paths):
     response = requests.post(OPEN_AI_URL, headers=OPEN_AI_HEADERS, json=paload)
     if response.status_code == 200:
         json_data_response = response.json()
-        logger.info(
-            f"get_observation_values.json_data_response!!!!!!!!!!!!!!!!: {json.dumps(json_data_response)}"
-        )
         try:
             return json.loads(json_data_response["choices"][0]["message"]["content"])
         except json.decoder.JSONDecodeError as e:
