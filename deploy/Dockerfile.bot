@@ -4,6 +4,8 @@ WORKDIR /app/bot
 
 RUN apt-get update
 RUN apt-get install -y poppler-utils
+RUN apt-get install -y tesseract-ocr
+RUN apt-get install -y tesseract-ocr-rus
 
 RUN pip install --upgrade pip
 
