@@ -28,7 +28,7 @@ def get_observation_values(image_paths):
         image_text = pytesseract.image_to_string(image, lang="rus")
         images_content += image_text
 
-    # chunked_images_content = chunk_text_by_linebreaks(images_content)
+    chunked_images_content = chunk_text_by_linebreaks(images_content)
 
     paload = {
         "model": "gpt-4o",
@@ -36,17 +36,17 @@ def get_observation_values(image_paths):
         "messages": [
             {
                 "role": "system",
-                "content": "You are an assistant specialized in getting observations tests values from medical documents data in Russian language and return the results in JSON format. Don't get categories, only tests values of medical obsevations and return results with negative 'conclusion_code' only.",
+                "content": "You are an assistant specialized in getting observations tests results with numbers from medical documents in Russian language and return the negative results in JSON format based on schema in promt.",
                 # "content": "You are an assistant specialized in getting only medical observations data values from medical documents in Russian language.",
             },
-            # *[
-            #     {"role": "user", "content": images_content}
-            #     for images_content in chunked_images_content
-            # ],
-            {
-                "role": "user",
-                "content": images_content,
-            },
+            *[
+                {"role": "user", "content": images_content}
+                for images_content in chunked_images_content
+            ],
+            # {
+            #     "role": "user",
+            #     "content": images_content,
+            # },
             {
                 "role": "user",
                 "content": json.dumps(OBSERVATION_INTERPRETATION_PROMT),
@@ -75,7 +75,6 @@ def get_observation_values(image_paths):
 
 def get_observation_results(image_paths):
     observation_values = get_observation_values(image_paths)
-    logger.info(f"observation_values!!!!!!!!!!!!!!!!!!!!!!!!!!!!: {observation_values}")
 
     # paload = {
     #     "model": "gpt-3.5-turbo",

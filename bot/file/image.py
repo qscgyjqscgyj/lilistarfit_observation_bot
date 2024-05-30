@@ -1,6 +1,6 @@
 import json
 import os
-from PIL import Image
+from PIL.PpmImagePlugin import PpmImageFile
 import traceback
 from telegram import File, InputMediaPhoto, Update, error as tg_error
 from ai.messages import GREETING_MESSAGE
@@ -18,13 +18,17 @@ async def handle_image_files(update: Update, context, images):
     try:
         media = []
         image_paths = []
-        for image in images:
+        for image_index, image in enumerate(images):
             local_image_path = None
 
-            if type(image) == Image:
-                local_image_path = image.file_path
+            if isinstance(image, PpmImageFile):
+                local_image_path = f"/tmp/image_{image_index}.png"
+                image.save(
+                    fp=local_image_path,
+                    format="png",
+                )
 
-            if type(image) == File:
+            if isinstance(image, File):
                 local_image_path = os.path.join(
                     "/tmp", os.path.basename(image.file_path)
                 )
@@ -37,6 +41,12 @@ async def handle_image_files(update: Update, context, images):
         await update.message.reply_text(
             GREETING_MESSAGE, parse_mode="HTML", disable_web_page_preview=True
         )
+
+        if not image_paths:
+            await update.message.reply_text(
+                "❌ Произошла ошибка при обработке изображения. Попробуйте еще раз."
+            )
+            return
 
         ai_response_data = get_observation_values(image_paths)
 

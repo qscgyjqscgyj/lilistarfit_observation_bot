@@ -40,7 +40,7 @@ async def handle_file(update: Update, context):
                 await handle_pdf_file(update, context, file)
 
             elif mime_type.startswith("image/"):
-                await handle_image_files(update, context, images)
+                await handle_image_files(update, context, [file])
 
         elif update.message.photo:
             await handle_image_files(update, context, images)
