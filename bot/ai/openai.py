@@ -3,6 +3,7 @@ import requests
 import json
 import traceback
 import pytesseract
+import datetime
 from PIL import Image
 
 from ai.promt import (
@@ -10,6 +11,7 @@ from ai.promt import (
     OBSERVATION_INTERPRETATION_PROMT,
     OBSEVATION_GET_VAUES_PROMT,
 )
+from file.utils import normalize_image
 from utils.strings import chunk_text_by_linebreaks
 from logger import logger
 
@@ -22,11 +24,15 @@ OPEN_AI_HEADERS = {
 
 
 def get_observation_values(image_paths):
+    json_log_data = {}
+
     images_content = ""
     for image_path in image_paths:
-        image = Image.open(image_path)
+        image = normalize_image(image_path)
         image_text = pytesseract.image_to_string(image, lang="rus")
         images_content += image_text
+
+    json_log_data["request"] = images_content
 
     chunked_images_content = chunk_text_by_linebreaks(images_content)
 
@@ -58,7 +64,16 @@ def get_observation_values(image_paths):
     if response.status_code == 200:
         json_data_response = response.json()
         try:
-            return json.loads(json_data_response["choices"][0]["message"]["content"])
+            result = json.loads(json_data_response["choices"][0]["message"]["content"])
+            json_log_data["response"] = result
+
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            json_log_filename = f"{current_dir}/requests_data/json_log_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+            json_log_file = open(json_log_filename, "w")
+            json_log_file.write(json.dumps(json_log_data))
+            json_log_file.close()
+
+            return result
         except json.decoder.JSONDecodeError as e:
             logger.error(
                 f"get_observation_results.json.JSONDecodeError!!!!!!!!!!!!!!! {traceback.format_exc(e)}"
